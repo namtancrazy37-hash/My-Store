@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pharmacy Stock · ทะเบียนยา</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root,[data-theme=dark]{color-scheme:dark;--bg:#000;--deep:#161616;--card:#232323;--inp:#2d2d2d;--ink:#fff;--mut:#808080;--line:#414141;--red:#e50914;--wine:#461518;--ox:#6f181d;--navy:#192247;--blue:#4061e7;--alt:#d9b3b5;--green:#2fb67c;--amber:#f5a524;--purple:#9b5de5;--teal:#00b8d9;--pink:#ff6f91}
+[data-theme=light]{color-scheme:light;--bg:#f3f4f8;--deep:#e9ebf2;--card:#fff;--inp:#e4e7ef;--ink:#15171c;--mut:#667085;--line:#d3d8e3;--red:#d90812;--wine:#fde4e5;--ox:#f6c2c5;--navy:#dde4fb;--blue:#3556d8;--alt:#8a2a30;--green:#12875a;--amber:#b86e00;--purple:#7a3fd0;--teal:#0086a3;--pink:#d6336c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);color:var(--ink);font:400 15px/1.5 "Netflix Sans","Helvetica Neue","Segoe UI",Roboto,Ubuntu,"Noto Sans Thai",system-ui,sans-serif;transition:background .2s,color .2s}
+svg{flex:none;vertical-align:middle}
+.wrap{max-width:1240px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.brand{display:flex;gap:14px;align-items:center}
+.logo{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--red),var(--purple))}
+h1{margin:0;font-size:clamp(26px,5vw,40px);font-weight:900;line-height:1.1;letter-spacing:-.02em}
+h2{margin:0 0 10px;font-size:17px;font-weight:600;display:flex;align-items:center;gap:8px}
+h2 svg{color:var(--c,var(--blue))}
+.sub{color:var(--mut);font-size:13px;margin-top:4px}
+nav{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+nav button{font:500 14px inherit;font-family:inherit;color:var(--mut);background:none;border:0;border-radius:10px;padding:9px 13px;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+nav button svg{color:var(--c,var(--mut))}
+nav button:hover{background:var(--deep)}
+nav button[aria-selected=true]{background:var(--inp);color:var(--ink)}
+nav .tg{border:1px solid var(--line);color:var(--ink);margin-left:8px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,.drop:focus-within{outline:2px solid var(--blue);outline-offset:2px}
+.cta{display:inline-flex;gap:8px;align-items:center;background:var(--red);color:#fff;border:0;border-radius:10px;padding:10px 20px;font:500 15px inherit;font-family:inherit;cursor:pointer}
+.bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:end;background:var(--deep);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.bar label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px}
+input,select{font:inherit;color:var(--ink);background:var(--inp);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.pre{background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer;font:inherit}
+.drop{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;background:var(--deep);border:1px dashed var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
+.drop.on{border-color:var(--blue)}.sr{position:absolute;opacity:0;width:1px;height:1px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;font-size:13px}.chip{background:var(--card);border-radius:8px;padding:4px 10px;color:var(--mut);display:inline-flex;gap:6px;align-items:center}.chip.ok{color:var(--ink)}.chip.ok svg{color:var(--green)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:14px}
+.kpi,.card{background:var(--card);border-radius:12px;padding:14px 16px;min-width:0}
+.kpi{display:flex;justify-content:space-between;gap:10px;border-top:3px solid var(--c,var(--line))}
+.ki{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.kl{font-size:13px;color:var(--mut)}.kv{font-size:26px;font-weight:900;line-height:1.2;margin:2px 0}.ks{font-size:12px;color:var(--mut)}
+.kpi.al{background:var(--wine)}.kpi.al .kl,.kpi.al .ks{color:var(--alt)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));margin-bottom:12px}
+.cw{position:relative;height:300px}
+.tw{overflow:auto;max-height:480px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:640px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{position:sticky;top:0;background:var(--card);color:var(--mut);font-weight:500}td.n,th.n{text-align:right}
+.b{display:inline-block;border-radius:8px;padding:1px 8px;font-size:12px;background:var(--inp);color:var(--ink);margin-right:4px}
+.b.r{background:var(--ox)}.b.w{background:var(--wine)}.b.i{background:var(--navy)}
+.b.g{background:color-mix(in srgb,var(--green) 22%,transparent);color:var(--green)}
+.b.a{background:color-mix(in srgb,var(--amber) 22%,transparent);color:var(--amber)}
+.b.p{background:color-mix(in srgb,var(--purple) 22%,transparent);color:var(--purple)}
+.mode{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.mode button{flex:1;min-width:200px;text-align:left;background:var(--card);color:var(--ink);border:1px solid transparent;border-radius:10px;padding:12px 14px;cursor:pointer;font:inherit}
+.mode button[aria-pressed=true]{border-color:var(--ink);background:var(--inp)}.mode small{display:block;color:var(--mut)}
+.note{font-size:12.5px;color:var(--mut);margin:8px 0 0}.empty{color:var(--mut);padding:24px 4px}
+ul.l{margin:0;padding:0;list-style:none}ul.l li{padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
+ul.gap li{display:flex;gap:10px;align-items:flex-start}ul.gap svg{color:var(--amber);margin-top:3px}
+nav a{font:500 14px inherit;font-family:inherit;color:var(--mut);text-decoration:none;border-radius:10px;padding:9px 13px;display:inline-flex;gap:7px;align-items:center}
+nav a svg{color:var(--c,var(--mut))}nav a:hover{background:var(--deep)}
+.src{display:flex;justify-content:flex-end;margin-bottom:10px}
+.src .pill{display:inline-flex;flex-wrap:wrap;gap:4px 8px;align-items:center;border-radius:999px;padding:5px 14px;font-size:13px;font-weight:500;background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green);border:1px solid color-mix(in srgb,var(--green) 45%,transparent)}
+.src.warn .pill{width:100%;border-radius:10px;padding:9px 14px;background:color-mix(in srgb,var(--amber) 22%,transparent);color:var(--amber);border-color:color-mix(in srgb,var(--amber) 55%,transparent)}
+footer.note{margin-top:16px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="src" id="src" hidden></div>
+<header>
+ <div class="brand"><div class="logo" data-i="pill" data-s="26"></div><div><h1>ทะเบียนยา</h1><div class="sub" id="sub">กำลังโหลดข้อมูลจาก /api/data …</div></div></div>
+ <nav id="nav" aria-label="เมนู">
+  <a href="./dashboard.html" style="--c:var(--blue)"><i data-i="grid"></i>Inventory Dashboard</a>
+  <button class="tg" id="theme" type="button" aria-label="สลับโหมดสว่าง/มืด"></button>
+ </nav>
+</header>
+<div id="msg" class="note"></div>
+<main id="view"><div class="empty">กำลังโหลดข้อมูลจาก /api/data …</div></main>
+<footer class="note" id="foot"></footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const D={items:[],meta:{},asof:''},SRC={k:'',err:''},V={q:'',cat:'',form:''};
+// ทุกค่าที่มาจากข้อมูลและใส่ใน innerHTML ต้องผ่าน esc
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const PAL=['#4061e7','#e50914','#2fb67c','#f5a524','#9b5de5','#00b8d9','#ff6f91','#8bc34a'];
+const bd=(t,c)=>`<span class="b ${c||''}">${esc(t)}</span>`;
+const IC={
+grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>',
+cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+cart:'<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/>',
+pill:'<path d="M10.5 20.5 3.5 13.5a4.95 4.95 0 0 1 7-7l7 7a4.95 4.95 0 0 1-7 7z"/><path d="m8.5 8.5 7 7"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+alert:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+box:'<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+check:'<path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="m22 4-10 10-3-3"/>',
+shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+trend:'<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>',
+down:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+up:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ban:'<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
+dollar:'<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+layers:'<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',
+flask:'<path d="M9 3h6M10 3v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 9V3"/>',
+hash:'<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>',
+pie:'<path d="M21.2 15.9A10 10 0 1 1 8 2.8"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>'};
+const I=(n,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]||''}</svg>`;
+const icons=()=>$$('[data-i]').forEach(e=>{e.innerHTML=I(e.dataset.i,+e.dataset.s||18);if(e.tagName==='I')e.style.display='inline-flex'});
+const kpi=(l,v,s,al,ic,c)=>`<div class="kpi${al?' al':''}" style="--c:${c||'var(--blue)'}"><div><div class="kl">${l}</div><div class="kv">${v}</div><div class="ks">${s||'&nbsp;'}</div></div><div class="ki">${I(ic||'hash',20)}</div></div>`;
+const h2=(t,ic,c)=>`<h2 style="--c:${c||'var(--blue)'}">${I(ic,18)}${t}</h2>`;
+const note=t=>{$('#msg').innerHTML+=esc(t)+'<br>'};
+
+/* ---------- theme ---------- */
+let T='dark';try{T=localStorage.getItem('ph-theme')==='light'?'light':'dark'}catch(e){}
+function applyTheme(){document.documentElement.dataset.theme=T;$('#theme').innerHTML=T==='dark'?I('sun')+'โหมดสว่าง':I('moon')+'โหมดมืด'}
+$('#theme').onclick=()=>{T=T==='dark'?'light':'dark';try{localStorage.setItem('ph-theme',T)}catch(e){}applyTheme();render()};
+
+/* ---------- chart ---------- */
+const ch={},cv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function bar(id,rows,horiz){if(ch[id])ch[id].destroy();Chart.defaults.color=cv('--mut');Chart.defaults.borderColor=cv('--line');
+ ch[id]=new Chart(document.getElementById(id),{type:'bar',data:{labels:rows.map(r=>r[0]),datasets:[{data:rows.map(r=>r[1]),backgroundColor:rows.map((_,i)=>PAL[i%PAL.length]),borderRadius:4}]},options:{indexAxis:horiz?'y':'x',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:!horiz}},y:{grid:{display:!!horiz},beginAtZero:true}}}})}
+
+/* ===== แหล่งข้อมูลหลัก: ดึงจริงจาก API ของเรา (/api/data → Supabase) ใช้เฉพาะ .drugs =====
+   ห้ามเรียก URL Supabase ตรงและห้ามใส่ key ในหน้านี้
+   ล้มเหลวเมื่อ: ไม่ใช่ HTTP 200, หมดเวลา 8 วินาที, JSON อ่านไม่ได้ หรือไม่มี drugs.items */
+async function loadApi(){
+ const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),8000);   // หมดเวลา 8 วินาที
+ try{
+  const r=await fetch('/api/data',{cache:'no-store',signal:ac.signal});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const j=await r.json();
+  if(!j||!j.drugs||!Array.isArray(j.drugs.items)||!j.drugs.items.length)throw new Error('ไม่พบ drugs ในข้อมูลจาก API');
+  D.items=j.drugs.items;D.meta=j.drugs.meta||{};
+  D.asof=(j.stock&&j.stock.meta&&j.stock.meta.as_of)||D.meta.as_of||'';
+  SRC.k='supabase';SRC.err='';render();
+ }finally{clearTimeout(tm)}
+}
+/* ===== ทางสำรอง: ./data/drugs_update.json เมื่อ /api/data ใช้ไม่ได้ (แสดงแถบสีเหลืองเตือน) ===== */
+async function autoload(){
+ try{await loadApi();return}
+ catch(e){SRC.err='/api/data ใช้ไม่ได้: '+(e&&e.name==='AbortError'?'หมดเวลา 8 วินาที':(e&&e.message)||e)}
+ try{
+  const r=await fetch('./data/drugs_update.json',{cache:'no-store'});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const j=await r.json(),it=Array.isArray(j)?j:j.items;
+  if(!Array.isArray(it)||!it.length)throw new Error('ไม่พบรายการใน items');
+  D.items=it;D.meta=j.meta||{};D.asof=D.meta.as_of||D.meta.updated||'';SRC.k='file';render();
+ }catch(e){
+  SRC.k='none';note(SRC.err);note('ทดสอบผ่านลิงก์ Vercel เท่านั้น (Live Server ไม่รัน /api)');
+  $('#view').innerHTML='<div class="empty">โหลดข้อมูลไม่สำเร็จ: ทดสอบผ่านลิงก์ Vercel เท่านั้น (Live Server ไม่รัน /api)</div>';srcUi()}
+}
+
+/* ---------- source badge / header / footer ---------- */
+function srcUi(){
+ const e=$('#src'),n=D.items.length,k=SRC.k;
+ if(k==='supabase'){e.hidden=false;e.className='src';
+  e.innerHTML=`<span class="pill">${I('check',14)}ข้อมูลจาก Supabase${D.asof?' · as_of '+esc(D.asof):''} · ${n} รายการ</span>`}
+ else if(k==='file'){e.hidden=false;e.className='src warn';
+  e.innerHTML=`<span class="pill">${I('alert',14)}ข้อมูลสำรองจากไฟล์ (ไม่ใช่ข้อมูลล่าสุด)${D.asof?' · '+esc(D.asof):''} · ${n} รายการ${SRC.err?' · '+esc(SRC.err):''}</span>`}
+ else e.hidden=true;
+ const from=k==='supabase'?'Supabase ผ่าน /api/data':k==='file'?'ไฟล์ JSON สำรอง (drugs_update.json)':'';
+ $('#sub').textContent=from?'ทะเบียนยา '+n+' รายการ · '+from:k==='none'?'โหลดข้อมูลไม่สำเร็จ':'กำลังโหลดข้อมูลจาก /api/data …';
+ $('#foot').textContent=from?'แหล่งข้อมูล: '+from+(k==='file'?' · ไม่ใช่ข้อมูลล่าสุด':' · อ่านอย่างเดียว')+' · ข้อมูลจำลองเพื่อการเรียนเท่านั้น':'';
+}
+
+/* ---------- view ---------- */
+const uniq=a=>[...new Set(a)].sort((x,y)=>String(x).localeCompare(String(y),'th'));
+function rows(){const q=V.q.trim().toLowerCase();
+ return D.items.filter(d=>(!V.cat||d.category===V.cat)&&(!V.form||d.dosage_form===V.form)&&(!q||[d.sku,d.generic_name,d.strength,d.atc_code,d.category].join(' ').toLowerCase().includes(q)))}
+function render(){
+ srcUi();if(!D.items.length)return;
+ const cats=uniq(D.items.map(d=>d.category)),forms=uniq(D.items.map(d=>d.dosage_form));
+ const cnt={};D.items.forEach(d=>cnt[d.category]=(cnt[d.category]||0)+1);
+ const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+ $('#view').innerHTML=`<div class="kpis">${kpi('SKU ทั้งหมด',fmt(D.items.length),'รายการในทะเบียนยา',0,'pill','var(--blue)')}${kpi('หมวดหมู่',cats.length,'หมวดที่มียาอย่างน้อย 1 รายการ',0,'layers','var(--purple)')}${kpi('รูปแบบยา',forms.length,'dosage form ที่ไม่ซ้ำ',0,'box','var(--teal)')}${kpi('จุดสั่งซื้อรวม',fmt(D.items.reduce((a,d)=>a+(+d.reorder_level||0),0)),'ผลรวม reorder_level',0,'cart','var(--green)')}</div>
+ <div class="card" style="margin-bottom:12px">${h2('จำนวน SKU ตามหมวดหมู่','layers','var(--purple)')}<div class="cw" style="height:${Math.max(300,top.length*26)}px"><canvas id="c1"></canvas></div></div>
+ <div class="card">${h2('รายการยา','list','var(--blue)')}
+  <div class="bar" style="background:none;padding:0">
+   <label>ค้นหา (SKU, ชื่อสามัญ, ATC)<input id="q" type="search" value="${esc(V.q)}"></label>
+   <label>หมวดหมู่<select id="cat"><option value="">ทั้งหมด</option>${cats.map(c=>`<option value="${esc(c)}"${V.cat===c?' selected':''}>${esc(c)}</option>`).join('')}</select></label>
+   <label>รูปแบบยา<select id="form"><option value="">ทั้งหมด</option>${forms.map(c=>`<option value="${esc(c)}"${V.form===c?' selected':''}>${esc(c)}</option>`).join('')}</select></label>
+   <button class="cta" id="csv" type="button">${I('down')}ส่งออก CSV</button><span class="sub" id="cn"></span>
+  </div>
+  <div class="tw"><table><thead><tr><th>SKU</th><th>ชื่อสามัญ</th><th>ความแรง</th><th>รูปแบบ</th><th>หน่วย</th><th>หมวดหมู่</th><th>ATC</th><th class="n">Reorder level</th></tr></thead><tbody id="dt"></tbody></table></div></div>`;
+ bar('c1',top,true);
+ const draw=()=>{V.q=$('#q').value;V.cat=$('#cat').value;V.form=$('#form').value;const r=rows();
+  $('#cn').textContent='แสดง '+r.length+' จาก '+D.items.length+' รายการ';
+  $('#dt').innerHTML=r.map(d=>`<tr><td>${esc(d.sku)}</td><td>${esc(d.generic_name)}</td><td>${esc(d.strength)}</td><td>${esc(d.dosage_form)}</td><td>${esc(d.unit)}</td><td>${bd(d.category,'i')}</td><td>${esc(d.atc_code)}</td><td class="n">${esc(d.reorder_level)}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">ไม่พบรายการ</td></tr>'};
+ $('#q').oninput=draw;$('#cat').onchange=draw;$('#form').onchange=draw;draw();
+ $('#csv').onclick=()=>{const r=[['sku','generic_name','strength','dosage_form','unit','category','atc_code','reorder_level']].concat(rows().map(d=>[d.sku,d.generic_name,d.strength,d.dosage_form,d.unit,d.category,d.atc_code,d.reorder_level]));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+r.map(x=>x.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n')],{type:'text/csv'}));a.download='drug-registry.csv';a.click()}
+}
+icons();applyTheme();autoload();
+</script>
+</body>
+</html>
